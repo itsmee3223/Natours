@@ -49,7 +49,9 @@ exports.getOne = (Model, populateOptions) =>
       ? await Model.findById(req.params.id)
       : await Model.findById(req.params.id).populate(populateOptions);
     if (!data) {
-      return next(new NotFoundError("No data found with that id"));
+      return next(
+        new NotFoundError(`No data found with that id ${req.params.id}`)
+      );
     }
 
     return res.status(StatusCodes.OK).json({
