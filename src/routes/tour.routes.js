@@ -7,15 +7,17 @@ const {
   httpUpdateTour,
   httpDeleteTour,
   httpGetTopTours,
+  httpGetMonthlyPlan,
 } = require("../controllers/tour.controller");
-const topTours = require("../middleware/topTours");
+const toursMiddleware = require("../middleware/tourMiddleware");
 const {
   uploadTourImages,
   resizeTourImages,
 } = require("../middleware/uploadImage");
 
 router.route("/").get(httpGetAllTours).post(httpCreateTour);
-router.route("/top-5-cheap").get(topTours, httpGetTopTours);
+router.route("/top-5-cheap").get(toursMiddleware.topTours, httpGetTopTours);
+router.route("/monthly-plan/:year").get((toursMiddleware.monthlyPlan), httpGetMonthlyPlan);
 
 router
   .route("/:id")
