@@ -17,3 +17,6 @@ exports.httpGetTourStats = (req, res, next) => {
 exports.httpGetToursWithin = (req, res, next) => {
   return res.status(StatusCodes.OK).json(res.toursWithin);
 };
+exports.httpGetToursDistance = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.tourDistance);
+};

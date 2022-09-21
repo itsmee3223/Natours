@@ -10,6 +10,7 @@ const {
   httpGetMonthlyPlan,
   httpGetTourStats,
   httpGetToursWithin,
+  httpGetToursDistance,
 } = require("../controllers/tour.controller");
 const toursMiddleware = require("../middleware/tourMiddleware");
 const {
@@ -24,6 +25,10 @@ router.route("/top-5-cheap").get(toursMiddleware.topTours, httpGetTopTours);
 router
   .route("/tours-within/:distance/center/:latlng/unit/:unit")
   .get(toursMiddleware.toursWithin, httpGetToursWithin);
+
+router
+  .route("/distances/:latlng/unit/:unit")
+  .get(toursMiddleware.toursDistance, httpGetToursDistance);
 
 router
   .route("/monthly-plan/:year")

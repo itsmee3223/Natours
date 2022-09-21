@@ -109,9 +109,50 @@ const toursWithin = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const toursDistance = asyncHandler(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+  const multiplier = unit === "mi" ? 0.000621371 : 0.001;
+
+  if (!lat || !lng) {
+    next(
+      new BadRequestError(
+        "Please provide latitude and longitude in the format lat, lng"
+      )
+    );
+  }
+
+  const tourDistance = await TourSchema.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [Number(lng), Number(lat)],
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.tourDistance = {
+    status: "success",
+    data: tourDistance,
+  };
+
+  next();
+});
+
 module.exports = {
   topTours,
   monthlyPlan,
   tourStats,
   toursWithin,
+  toursDistance,
 };
