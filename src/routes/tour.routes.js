@@ -12,7 +12,7 @@ const {
   httpGetToursWithin,
   httpGetToursDistance,
 } = require("../controllers/tour.controller");
-const toursMiddleware = require("../middleware/tourMiddleware");
+const toursMiddleware = require("../middleware/tour.middleware");
 const {
   uploadTourImages,
   resizeTourImages,
