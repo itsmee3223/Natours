@@ -6,3 +6,7 @@ exports.httpCreateUser = (req, res, next) => {
     message: "This route is not defined! please use /signup instead",
   });
 };
+
+exports.httpSignupUser = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.singUpUser);
+};
