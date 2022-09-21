@@ -1,5 +1,6 @@
 const asyncHandler = require("./async");
 const TourSchema = require("../models/Tour.schema");
+const { BadRequestError } = require("../utils/errors");
 
 const topTours = (req, res, next) => {
   req.query.limit = 5;
@@ -82,8 +83,35 @@ const tourStats = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+const toursWithin = asyncHandler(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+  const radius = unit === "mi" ? distance / 3963.2 : distance / 6378.1;
+
+  if ((!lat, !lng)) {
+    next(
+      new BadRequestError(
+        "Please provide latitude and longitude in the format lat, lang."
+      )
+    );
+  }
+
+  const tours = await TourSchema.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.toursWithin = {
+    status: "success",
+    data: tours,
+  };
+
+  next();
+});
+
 module.exports = {
   topTours,
   monthlyPlan,
   tourStats,
+  toursWithin,
 };

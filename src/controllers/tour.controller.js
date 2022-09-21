@@ -14,3 +14,6 @@ exports.httpGetMonthlyPlan = (req, res, next) => {
 exports.httpGetTourStats = (req, res, next) => {
   return res.status(StatusCodes.OK).json(res.tourStats);
 };
+exports.httpGetToursWithin = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.toursWithin);
+};
