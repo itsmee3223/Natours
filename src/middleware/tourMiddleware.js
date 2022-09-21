@@ -1,14 +1,13 @@
 const asyncHandler = require("./async");
 const TourSchema = require("../models/Tour.schema");
-const { StatusCodes } = require("http-status-codes");
 
-function topTours(req, res, next) {
+const topTours = (req, res, next) => {
   req.query.limit = 5;
   req.query.sort = "-ratingAverage,price";
   req.query.fields = "name,price,ratingsAverage,summary,difficulty";
 
   next();
-}
+};
 
 const monthlyPlan = asyncHandler(async (req, res, next) => {
   const year = Number(req.params.year);
@@ -47,7 +46,7 @@ const monthlyPlan = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  res.plan = {
+  res.toursPlan = {
     status: "success",
     data: plan,
   };
@@ -55,7 +54,36 @@ const monthlyPlan = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const tourStats = asyncHandler(async (req, res, next) => {
+  const stats = await TourSchema.aggregate([
+    {
+      $match: { ratingsAverage: { $gte: 4.5 } },
+    },
+    {
+      $group: {
+        _id: { $toUpper: "$difficulty" },
+        numTours: { $sum: 1 },
+        numRatings: { $sum: "$ratingsQuantity" },
+        avgRating: { $avg: "$ratingsAverage" },
+        avgPrice: { $avg: "$price" },
+        minPrice: { $min: "$price" },
+        maxPrice: { $max: "$price" },
+      },
+    },
+    {
+      $sort: { avgPrice: 1 },
+    },
+  ]);
+
+  res.tourStats = {
+    status: "success",
+    data: stats,
+  };
+
+  next();
+});
 module.exports = {
   topTours,
   monthlyPlan,
+  tourStats,
 };
