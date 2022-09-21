@@ -13,7 +13,7 @@ exports.deleteOne = (Model) =>
 
     res.status(StatusCodes.NO_CONTENT).json({
       status: "success",
-      data,
+      message: "Data succsess deleted",
     });
   });
 
