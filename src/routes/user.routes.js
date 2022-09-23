@@ -20,4 +20,12 @@ router
   .route("/resetPassword/:token")
   .patch(userMiddleware.resetPassword, httpResetPassword);
 
+router.use(
+  userMiddleware.auth,
+  userMiddleware.updatePassword,
+  httpForgetUserPassword
+);
+
+router.route("/updateMyPassword").patch();
+
 module.exports = router;

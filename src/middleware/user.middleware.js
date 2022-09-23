@@ -1,4 +1,6 @@
 const crypto = require("crypto");
+const { promisify } = require("util");
+
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
@@ -35,6 +37,46 @@ const createAndSendToken = (user, statusCode, req, res, next) => {
 
   next();
 };
+
+const auth = asyncHandler(async (req, res, next) => {
+  const token =
+    req.headers.authorization && req.headers.authorization.startsWith("Bearer")
+      ? req.headers.authorization.split(" ")[1]
+      : req.cookies.jwt;
+
+  if (!token) {
+    return next(new UnauthenticatedError("You are not logged in"));
+  }
+
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) Check if user still exists
+  const currentUser = await UserSchema.findById(decoded.id);
+  if (!currentUser) {
+    return next(
+      new UnauthenticatedError(
+        "The user belonging to this token does no longer exist.",
+        401
+      )
+    );
+  }
+
+  // 4) Check if user changed password after the token was issued
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new UnauthenticatedError(
+        "User recently changed password! Please log in again.",
+        401
+      )
+    );
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
+  res.locals.user = currentUser;
+  next();
+});
 
 const signUp = asyncHandler(async (req, res, next) => {
   const newUser = await UserSchema.create({
@@ -133,10 +175,25 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
   createAndSendToken(user, StatusCodes.OK, req, res, next);
 });
+
+const updatePassword = asyncHandler(async (req, res, next) => {
+  const user = await UserSchema.findById(req.user.id).select("+password");
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new BadRequestError("Your current password is wrong."));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+
+  await user.save();
+
+  createAndSendToken(user, StatusCodes.OK, req, res, next);
+});
 module.exports = {
   signUp,
   loginUser,
   logoutUser,
   forgetPassword,
   resetPassword,
+  updatePassword,
+  auth,
 };

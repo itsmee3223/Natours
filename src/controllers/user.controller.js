@@ -26,3 +26,11 @@ exports.httpForgetUserPassword = (req, res, next) => {
 exports.httpResetPassword = (req, res, next) => {
   return res.json(res.userInfo);
 };
+
+exports.httpUpdatePassword = (req, res, next) => {
+  return res.json(res.userInfo);
+};
+
+exports.httpUpdatePassword = (req, res, next) => {
+  return res.json(res.userInfo);
+};
