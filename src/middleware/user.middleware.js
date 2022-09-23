@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
+const { StatusCodes } = require("http-status-codes");
 
 const UserSchema = require("../models/User.schema");
 const asyncHandler = require("./async");
+const Email = require("../utils/email");
+
 const UnauthenticatedError = require("../utils/errors/unauthenticated");
 const BadRequestError = require("../utils/errors/badRequest");
-const Email = require("../utils/email");
-const { StatusCodes } = require("http-status-codes");
+const NotFoundError = require("../utils/errors/notFound");
 
 const createAndSendToken = (user, statusCode, req, res, next) => {
   const id = user._id;
@@ -22,6 +24,7 @@ const createAndSendToken = (user, statusCode, req, res, next) => {
   });
 
   user.password = undefined;
+  user.__v = undefined;
   res.status(statusCode);
   res.userInfo = {
     status: "success",
@@ -64,7 +67,50 @@ const loginUser = asyncHandler(async (req, res, next) => {
   createAndSendToken(user, 200, req, res, next);
 });
 
+const logoutUser = (req, res, next) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.userInfo = {
+    status: "success",
+  };
+
+  next();
+};
+
+const forgetPassword = asyncHandler(async (req, res, next) => {
+  const user = await UserSchema.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new NotFoundError("There is no user with this email address"));
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  try {
+    const resetURL = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/users/resetPassword/${resetToken}`;
+    await new Email(user, resetURL).sendPasswordReset();
+
+    res.userInfo = {
+      status: "success",
+      message: "Token sent to email!",
+    };
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(err);
+  }
+  next();
+});
 module.exports = {
   signUp,
   loginUser,
+  logoutUser,
+  forgetPassword,
 };

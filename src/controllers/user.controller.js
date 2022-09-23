@@ -14,3 +14,11 @@ exports.httpSignupUser = (req, res, next) => {
 exports.httpLoginUser = (req, res, next) => {
   return res.json(res.userInfo);
 };
+
+exports.httpLogoutUser = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.userInfo);
+};
+
+exports.httpForgetUserPassword = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.userInfo);
+};
