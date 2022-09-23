@@ -8,5 +8,9 @@ exports.httpCreateUser = (req, res, next) => {
 };
 
 exports.httpSignupUser = (req, res, next) => {
-  return res.status(StatusCodes.OK).json(res.singUpUser);
+  return res.json(res.userInfo);
+};
+
+exports.httpLoginUser = (req, res, next) => {
+  return res.json(res.userInfo);
 };
