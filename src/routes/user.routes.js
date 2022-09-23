@@ -9,6 +9,7 @@ const {
   httpUpdatePassword,
   httpGetMe,
   httpUpdateCurrentUser,
+  httpDeleteMe,
 } = require("../controllers/user.controller");
 
 const userMiddleware = require("../middleware/user.middleware");
@@ -26,10 +27,13 @@ router
   .patch(userMiddleware.resetPassword, httpResetPassword);
 
 router.use(userMiddleware.auth);
+
 router
   .route("/updateMyPassword")
   .patch(userMiddleware.updatePassword, httpUpdatePassword);
+
 router.route("/me").get(userMiddleware.getMe, httpGetMe);
+
 router
   .route("/updateMe")
   .patch(
@@ -38,4 +42,7 @@ router
     userMiddleware.updateCurrentUser,
     httpUpdateCurrentUser
   );
+
+router.route("/deleteMe").delete(userMiddleware.deleteMe, httpDeleteMe);
+
 module.exports = router;

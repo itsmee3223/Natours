@@ -231,6 +231,16 @@ const updateCurrentUser = asyncHandler(async (req, res, next) => {
   };
   next();
 });
+
+const deleteMe = asyncHandler(async (req, res, next) => {
+  await UserSchema.findByIdAndDelete(req.user.id, { active: false });
+  res.deletedMe = {
+    status: "success",
+    message: "Deleted....",
+  };
+
+  next();
+});
 module.exports = {
   signUp,
   loginUser,
@@ -241,4 +251,5 @@ module.exports = {
   auth,
   getMe,
   updateCurrentUser,
+  deleteMe,
 };

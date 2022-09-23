@@ -42,3 +42,6 @@ exports.httpUpdateCurrentUser = (req, res, next) => {
 };
 
 exports.httpGetMe = hadnlerFactory.getOne(UserSchema);
+exports.httpDeleteMe = (req, res, next) => {
+  return res.status(StatusCodes.NO_CONTENT).json(res.deletedMe);
+};
