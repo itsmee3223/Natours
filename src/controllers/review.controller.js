@@ -8,3 +8,4 @@ exports.setTourId = (req, res, next) => {
 };
 
 exports.httpGetAllReviews = handlerFactory.getAll(ReviewSchema);
+exports.httpGetReview = handlerFactory.getOne(ReviewSchema);
