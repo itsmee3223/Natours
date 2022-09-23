@@ -10,12 +10,15 @@ const {
   httpGetMe,
   httpUpdateCurrentUser,
   httpDeleteMe,
+  httpGetAllUser,
+  httpUpdateUser,
+  httpDeleteUser,
+  httpGetUser,
 } = require("../controllers/user.controller");
 
 const userMiddleware = require("../middleware/user.middleware");
 const uploadMiddleware = require("../middleware/uploadImage.middleware");
 
-router.route("/").post(httpCreateUser);
 router.route("/signup").post(userMiddleware.signUp, httpSignupUser);
 router.route("/login").post(userMiddleware.loginUser, httpLoginUser);
 router.route("/logout").get(userMiddleware.logoutUser, httpLogoutUser);
@@ -44,5 +47,13 @@ router
   );
 
 router.route("/deleteMe").delete(userMiddleware.deleteMe, httpDeleteMe);
+
+router.use(userMiddleware.authorize("admin"));
+router.route("/").get(httpGetAllUser).post(httpCreateUser);
+router
+  .route("/:id")
+  .get(httpGetUser)
+  .patch(httpUpdateUser)
+  .delete(httpDeleteUser);
 
 module.exports = router;

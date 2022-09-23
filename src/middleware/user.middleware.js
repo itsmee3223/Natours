@@ -78,6 +78,15 @@ const auth = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new UnauthenticatedError("You don't have permission"));
+    }
+    next();
+  };
+};
+
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach((el) => {
@@ -241,6 +250,7 @@ const deleteMe = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
 module.exports = {
   signUp,
   loginUser,
@@ -249,6 +259,7 @@ module.exports = {
   resetPassword,
   updatePassword,
   auth,
+  authorize,
   getMe,
   updateCurrentUser,
   deleteMe,
