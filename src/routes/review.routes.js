@@ -6,6 +6,7 @@ const {
   setTourIdAndUserId,
   httpCreateReview,
   httpUpdateReview,
+  httpDeletReview,
 } = require("../controllers/review.controller");
 const userMiddleware = require("../middleware/user.middleware");
 router.use(userMiddleware.auth);
@@ -18,6 +19,7 @@ router
 router
   .route("/:id")
   .get(httpGetReview)
-  .patch(userMiddleware.authorize("user", "admin"), httpUpdateReview);
+  .patch(userMiddleware.authorize("user", "admin"), httpUpdateReview)
+  .delete(userMiddleware.authorize("user", "admin"), httpDeletReview);
 
 module.exports = router;

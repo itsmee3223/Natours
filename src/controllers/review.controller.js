@@ -11,3 +11,4 @@ exports.httpGetAllReviews = handlerFactory.getAll(ReviewSchema);
 exports.httpGetReview = handlerFactory.getOne(ReviewSchema);
 exports.httpCreateReview = handlerFactory.createOne(ReviewSchema);
 exports.httpUpdateReview = handlerFactory.updateOne(ReviewSchema);
+exports.httpDeletReview = handlerFactory.deleteOne(ReviewSchema);
