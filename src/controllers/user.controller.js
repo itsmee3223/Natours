@@ -22,3 +22,7 @@ exports.httpLogoutUser = (req, res, next) => {
 exports.httpForgetUserPassword = (req, res, next) => {
   return res.status(StatusCodes.OK).json(res.userInfo);
 };
+
+exports.httpResetPassword = (req, res, next) => {
+  return res.json(res.userInfo);
+};

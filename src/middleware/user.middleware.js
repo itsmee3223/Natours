@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
@@ -64,7 +65,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
   }
 
   // 3) If everything ok, send token to client
-  createAndSendToken(user, 200, req, res, next);
+  createAndSendToken(user, StatusCodes.OK, req, res, next);
 });
 
 const logoutUser = (req, res, next) => {
@@ -106,11 +107,36 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
 
     return next(err);
   }
+  console.log(resetToken);
   next();
+});
+
+const resetPassword = asyncHandler(async (req, res, next) => {
+  const passwordResetToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  console.log(req.params.token);
+  const user = await UserSchema.findOne({
+    passwordResetToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  // 2) If token has not expired, and there is user, set the new password
+  if (!user) {
+    return next(new BadRequestError("Token is invalid or has expired"));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  createAndSendToken(user, StatusCodes.OK, req, res, next);
 });
 module.exports = {
   signUp,
   loginUser,
   logoutUser,
   forgetPassword,
+  resetPassword,
 };

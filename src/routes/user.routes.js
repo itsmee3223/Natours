@@ -5,6 +5,7 @@ const {
   httpLoginUser,
   httpLogoutUser,
   httpForgetUserPassword,
+  httpResetPassword,
 } = require("../controllers/user.controller");
 const userMiddleware = require("../middleware/user.middleware");
 
@@ -15,4 +16,8 @@ router.route("/logout").get(userMiddleware.logoutUser, httpLogoutUser);
 router
   .route("/forgotPassword")
   .post(userMiddleware.forgetPassword, httpForgetUserPassword);
+router
+  .route("/resetPassword/:token")
+  .patch(userMiddleware.resetPassword, httpResetPassword);
+
 module.exports = router;

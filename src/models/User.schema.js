@@ -98,15 +98,20 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 userSchema.methods.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetToken = crypto.randomBytes(32).toString("hex"); // creates random token
 
+  // hash the reset token--> to store in Database
   this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  // console.log({ resetToken }, this.passwordResetToken);
 
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes in milliseconds
+
+  // return the original(unencrypted) token to the user via email--> resetToken
+  // But in our Database store encrypted token--> passwordResetToken
   return resetToken;
 };
 
