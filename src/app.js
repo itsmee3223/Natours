@@ -20,6 +20,7 @@ const notFoundMiddleware = require("./middleware/notFound");
 
 const tourRoutes = require("./routes/tour.routes");
 const userRoutes = require("./routes/user.routes");
+const reviewRoutes = require("./routes/review.routes");
 
 const app = express();
 app.set("view engine", "pug");
@@ -66,6 +67,7 @@ app.use(express.static(path.join(__dirname, "./public")));
 // app.use("/", viewRouter);
 app.use("/api/v1/tours", tourRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
