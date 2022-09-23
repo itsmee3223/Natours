@@ -13,10 +13,7 @@ const {
   httpGetToursDistance,
 } = require("../controllers/tour.controller");
 const toursMiddleware = require("../middleware/tour.middleware");
-const {
-  uploadTourImages,
-  resizeTourImages,
-} = require("../middleware/uploadImage");
+const { uploadTourImages, resizeImages } = require("../middleware/uploadImage.middleware");
 
 router.route("/").get(httpGetAllTours).post(httpCreateTour);
 router.route("/tour-stats").get(toursMiddleware.tourStats, httpGetTourStats);
@@ -37,7 +34,7 @@ router
 router
   .route("/:id")
   .get(httpGetTour)
-  .patch(uploadTourImages, resizeTourImages, httpUpdateTour)
+  .patch(uploadTourImages, resizeImages, httpUpdateTour)
   .delete(httpDeleteTour);
 
 module.exports = router;

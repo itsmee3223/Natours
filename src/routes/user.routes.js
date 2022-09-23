@@ -8,8 +8,11 @@ const {
   httpResetPassword,
   httpUpdatePassword,
   httpGetMe,
+  httpUpdateCurrentUser,
 } = require("../controllers/user.controller");
+
 const userMiddleware = require("../middleware/user.middleware");
+const uploadMiddleware = require("../middleware/uploadImage.middleware");
 
 router.route("/").post(httpCreateUser);
 router.route("/signup").post(userMiddleware.signUp, httpSignupUser);
@@ -27,4 +30,12 @@ router
   .route("/updateMyPassword")
   .patch(userMiddleware.updatePassword, httpUpdatePassword);
 router.route("/me").get(userMiddleware.getMe, httpGetMe);
+router
+  .route("/updateMe")
+  .patch(
+    uploadMiddleware.uploadUserPhoto,
+    uploadMiddleware.resizeImages,
+    userMiddleware.updateCurrentUser,
+    httpUpdateCurrentUser
+  );
 module.exports = router;

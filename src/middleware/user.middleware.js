@@ -78,6 +78,14 @@ const auth = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
+
 const signUp = asyncHandler(async (req, res, next) => {
   const newUser = await UserSchema.create({
     name: req.body.name,
@@ -193,6 +201,36 @@ const getMe = asyncHandler(async (req, res, next) => {
   req.params.id = req.user.id;
   next();
 });
+
+const updateCurrentUser = asyncHandler(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new BadRequestError(
+        "This route is not for password updates. Please use /updateMyPassword."
+      )
+    );
+  }
+
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
+  const filteredBody = filterObj(req.body, "name", "email");
+  if (req.file) filteredBody.photo = req.file.filename;
+
+  // 3) Update user document
+  const updatedUser = await UserSchema.findByIdAndUpdate(
+    req.user.id,
+    filteredBody,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.updatedUser = {
+    status: "success",
+    data: updatedUser,
+  };
+  next();
+});
 module.exports = {
   signUp,
   loginUser,
@@ -202,4 +240,5 @@ module.exports = {
   updatePassword,
   auth,
   getMe,
+  updateCurrentUser,
 };

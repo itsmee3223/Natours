@@ -3,7 +3,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   // set default custom error
   let customError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-    msg: err.message || "Something went wrong try again later",
+    msg: err || "Something went wrong try again later",
   };
 
   // Error validation
@@ -33,6 +33,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   // return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ err });
 
   // For specific errors
+  console.log(err);
   return res.status(customError.statusCode).json({
     status: "fail",
     message: customError.msg,

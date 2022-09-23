@@ -37,4 +37,8 @@ exports.httpUpdatePassword = (req, res, next) => {
   return res.json(res.userInfo);
 };
 
+exports.httpUpdateCurrentUser = (req, res, next) => {
+  return res.status(StatusCodes.OK).json(res.updatedUser);
+};
+
 exports.httpGetMe = hadnlerFactory.getOne(UserSchema);
