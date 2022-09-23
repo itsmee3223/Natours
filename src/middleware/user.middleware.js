@@ -188,6 +188,11 @@ const updatePassword = asyncHandler(async (req, res, next) => {
 
   createAndSendToken(user, StatusCodes.OK, req, res, next);
 });
+
+const getMe = asyncHandler(async (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+});
 module.exports = {
   signUp,
   loginUser,
@@ -196,4 +201,5 @@ module.exports = {
   resetPassword,
   updatePassword,
   auth,
+  getMe,
 };
