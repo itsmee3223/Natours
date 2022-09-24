@@ -4,8 +4,9 @@ const TourSchema = require("../models/Tour.schema");
 const UserSchema = require("../models/User.schema");
 const BookingSchema = require("../models/Booking.schema");
 
+const handlerFactory = require("../models/handlerFactory");
+
 const asyncHandler = require("../middleware/async");
-const { BadRequestError } = require("../utils/errors");
 
 exports.httpGetCheckoutSession = asyncHandler(async (req, res, next) => {
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -41,11 +42,23 @@ exports.httpGetCheckoutSession = asyncHandler(async (req, res, next) => {
 });
 
 const createBookingCheckout = asyncHandler(async (session) => {
-  const tour = session.client_refrence_id;
-  const user = await UserSchema.findOne({ email: session.customer_email }).id;
-  const price = session.display_items[0].amount / 100;
+  const signature = req.headers["stripe-signature"];
 
-  await BookingSchema.create({ tour, user, price });
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed")
+    createBookingCheckout(event.data.object);
+
+  res.status(200).json({ received: true });
 });
 
 exports.webhookCheckout = (req, res, next) => {
@@ -63,3 +76,9 @@ exports.webhookCheckout = (req, res, next) => {
 
   res.status(200).json({ received: true });
 };
+
+exports.httpCreateBooking = handlerFactory.createOne(BookingSchema);
+exports.httpGetAllBookings = handlerFactory.getAll(BookingSchema);
+exports.httpGetBooking = handlerFactory.getOne(BookingSchema);
+exports.httpUpdateBooking = handlerFactory.updateOne(BookingSchema);
+exports.httpDeleteBooking = handlerFactory.deleteOne(BookingSchema);

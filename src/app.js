@@ -24,11 +24,12 @@ const tourRoutes = require("./routes/tour.routes");
 const userRoutes = require("./routes/user.routes");
 const reviewRoutes = require("./routes/review.routes");
 const bookingRoutes = require("./routes/booking.routes");
+const viewRoutes = require("./routes/view.routes");
 
 const app = express();
 app.set("view engine", "pug");
 app.use(express.static(path.join(__dirname, "../public")));
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "./views"));
 app.enable("trust proxy");
 process.env.NODE_ENV === "development"
   ? app.use(morgan("dev"))
@@ -70,9 +71,8 @@ app.use(compression());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "./public")));
 
-// app.use("/", viewRouter);
+app.use("/", viewRoutes);
 app.use("/api/v1/tours", tourRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
